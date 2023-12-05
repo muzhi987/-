@@ -114,7 +114,7 @@ function Forums() {
               title: "犯人编号",
               // value 表示当前单元格数据，如果没有设置dataIndex，那么参数一和参数二数据一样
               // record表示当前行数据
-              render(value, record, index) {
+              render(_value, _record, index) {
                 return index + 1;
               },
               align: "center",
@@ -206,7 +206,7 @@ function Forums() {
               setIsShow(false);
               loadData();
             })
-            .catch((err) => {});
+            .catch((_err) => {});
         }}
         //maskClosable 点击遮罩层是否关闭
         maskClosable={false}>
