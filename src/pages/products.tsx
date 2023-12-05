@@ -22,9 +22,10 @@ import {
   loadDataAPI,
   loadDataByIdAPI,
   modifyDataByAPI,
-} from "../services/forums";
+} from "../services/products";
 import { dalImg } from "../utils/tools";
 import MyUpload from "../components/MyUpload";
+import MyEditor from "../components/MyEditor";
 
 function Products() {
   const [isShow, setIsShow] = useState(false);
@@ -33,6 +34,8 @@ function Products() {
   const [query, setQuery] = useState({}); //查询条件
 
   const [imageUrl, setImageUrl] = useState<string>(); //图片地址
+  //编辑器内容
+  const [html, setHtml] = useState("<p>hello</p>");
   const [list, setList] = useState([]); //列表
   const [total, setTotal] = useState(0); //总数量
 
@@ -53,13 +56,14 @@ function Products() {
     if (!isShow) {
       setCurrentId(""); //重置数据
       setImageUrl(""); //重置图片数据为空
+      setHtml(""); //重置富文本编辑器数据为空
     }
   }, [isShow]);
 
   return (
     <div className="container">
       <Card
-        title="男通讯录板块管理"
+        title="商品管理"
         extra={
           <>
             <Button
@@ -99,12 +103,13 @@ function Products() {
           //pagination分页
           pagination={{
             total, //总数量
-            //分页改变
-            onChange(page) {
+            //分页改变 pageSize（per） 表示每一页展示的数量
+            onChange(page, per) {
               // loadData(page);
               setQuery({
                 ...query,
                 page: page,
+                per,
               });
             },
           }}
@@ -114,19 +119,15 @@ function Products() {
               title: "犯人编号",
               // value 表示当前单元格数据，如果没有设置dataIndex，那么参数一和参数二数据一样
               // record表示当前行数据
-              render(value, record, index) {
+              render(_value, _record, index) {
                 return index + 1;
               },
               align: "center",
               width: "90px",
             },
+
             {
-              title: "犯人名字",
-              dataIndex: "name",
-              align: "center",
-            },
-            {
-              title: "犯人封面图",
+              title: "封面",
 
               render(v) {
                 return (
@@ -139,7 +140,18 @@ function Products() {
               align: "center",
               width: "90px",
             },
-            { title: "犯人简介", dataIndex: "desc" },
+            { title: "简介", dataIndex: "desc" },
+            {
+              title: "价格",
+              dataIndex: "price",
+            },
+            {
+              title: "分类",
+              render(v) {
+                return <>{v.category ? v.category.name : "暂无"}</>;
+              },
+            },
+            { title: "库存", dataIndex: "amount" },
             {
               title: "操作",
               render(value) {
@@ -157,6 +169,7 @@ function Products() {
                           myForm.setFieldsValue(data); //设置表单数据
                           setCurrentId(data.id); //存储当前点击的ID
                           setImageUrl(data.coverImage); //存储当前点击的图片
+                          setHtml(data.content);
                           console.log(data);
                         }}
                       />
@@ -184,6 +197,7 @@ function Products() {
         />
       </Card>
       <Modal
+        width="80%"
         //destroyOnClose关闭窗口之后销毁内容
         //如果和表单结合使用，需要设置form表单的 preserve 属性
         destroyOnClose
@@ -195,18 +209,20 @@ function Products() {
             .validateFields() //验证表单内容
             //验证通过之后会走这个函数，then可以获取当前表单中的数据
             .then(async (v) => {
+              //根据currentId的值判断是新增还是修改
               if (currentId) {
                 await modifyDataByAPI(currentId, {
                   ...v,
                   coverImage: imageUrl,
+                  content: html,
                 });
               } else {
-                await addDataAPI({ ...v, coverImage: imageUrl });
+                await addDataAPI({ ...v, coverImage: imageUrl, content: html });
               }
               setIsShow(false);
               loadData();
             })
-            .catch((err) => {});
+            .catch((_err) => {});
         }}
         //maskClosable 点击遮罩层是否关闭
         maskClosable={false}>
@@ -228,6 +244,9 @@ function Products() {
           </Form.Item>
           <Form.Item label="简介" name="desc">
             <Input.TextArea placeholder="请输入简介" />
+          </Form.Item>
+          <Form.Item label="详情">
+            <MyEditor html={html} setHtml={setHtml} />
           </Form.Item>
         </Form>
       </Modal>
