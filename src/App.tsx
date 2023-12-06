@@ -10,6 +10,37 @@ import { dalImg } from "./utils/tools";
 
 const { Header, Sider, Content } = Layout;
 
+//当前登录的用户的角色
+const role = "admin";
+
+//  为每一个菜单添加角色权限信息
+const MenuData = [
+  {
+    key: "/dashboard",
+    icon: <MyIcon type="icon-kanban" />,
+    label: "看板",
+    roles: ["admin", "editor"],
+  },
+  {
+    key: "/products",
+    icon: <MyIcon type="icon-shangpin" />,
+    label: "商品管理",
+    roles: ["editor"],
+  },
+  {
+    key: "/users",
+    icon: <MyIcon type="icon-huiyuan" />,
+    label: "会员管理",
+    roles: ["admin", "editor"],
+  },
+  {
+    key: "/forums",
+    icon: <MyIcon type="icon-fengche" />,
+    label: "男同论坛版块",
+    roles: ["admin", "editor"],
+  },
+];
+
 const App: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const nav = useNavigate();
@@ -43,28 +74,8 @@ const App: React.FC = () => {
             // console.log(key);
             nav(key);
           }}
-          items={[
-            {
-              key: "/dashboard",
-              icon: <MyIcon type="icon-kanban" />,
-              label: "看板",
-            },
-            {
-              key: "/products",
-              icon: <MyIcon type="icon-shangpin" />,
-              label: "商品管理",
-            },
-            {
-              key: "/users",
-              icon: <MyIcon type="icon-huiyuan" />,
-              label: "会员管理",
-            },
-            {
-              key: "/forums",
-              icon: <MyIcon type="icon-fengche" />,
-              label: "男同论坛版块",
-            },
-          ]}
+          //根据当前登录的用户角色不同，展示不同的导航菜单
+          items={MenuData.filter((item) => item.roles.includes(role))}
         />
       </Sider>
       <Layout>

@@ -4,12 +4,11 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createHashRouter } from "react-router-dom";
 import App from "./App.tsx";
 import "./index.scss";
-import Products from "./pages/products.tsx";
-import Users from "./pages/users.tsx";
-import Forums from "./pages/forums.tsx";
+
 import Login from "./pages/login.tsx";
-import Dashboard from "./pages/dashboard.tsx";
+
 import ProtectedRoute from "./components/ProtectedRoute.tsx";
+import AppProvider, { RouteData, roles } from "./components/AppProvider.tsx";
 
 const router = createHashRouter([
   {
@@ -23,24 +22,14 @@ const router = createHashRouter([
         <App />
       </ProtectedRoute>
     ),
-    children: [
-      {
-        path: "dashboard",
-        element: <Dashboard />,
-      },
-      {
-        path: "products",
-        element: <Products />,
-      },
-      { path: "users", element: <Users /> },
-
-      { path: "forums", element: <Forums /> },
-    ],
+    children: RouteData.filter((item) => item.roles.includes(roles)),
   },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <ConfigProvider locale={zhCN}>
-    <RouterProvider router={router} />
+    <AppProvider>
+      <RouterProvider router={router} />
+    </AppProvider>
   </ConfigProvider>
 );
